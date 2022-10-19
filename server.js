@@ -1,4 +1,4 @@
-const { WarpNodeFactory } = require('warp1')
+const { WarpFactory, LoggerFactory } = require('warp-contracts')
 const path = require('path')
 const http = require('http')
 const send = require('http-json-response')
@@ -6,18 +6,19 @@ const Arweave = require('arweave')
 const cors = require('permissive-cors')
 const corsMiddleware = cors()
 
-const arweave = Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
-const warp = WarpNodeFactory.fileCached(arweave, path.join(__dirname, 'warp1-cache'))
+LoggerFactory.INST.logLevel('error')
+//const arweave = Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
+const warp = WarpFactory.forMainnet()
 
 const server = http.createServer((req, res) => {
   corsMiddleware(req, res, async () => {
-    const result = await warp.contract('mMffEC07TyoAFAI_O6q_nskj2bT8n4UFvckQ3yELeic').setEvaluationOptions({
+    const result = await warp.contract('VFr3Bk-uM-motpNNkkFg4lNW1BMmSfzqsVO551Ho4hA').setEvaluationOptions({
       internalWrites: true,
       allowUnsafeClient: true,
       allowBigInt: true
     }).readState()
     //console.log(result)
-    send(res, result.state)
+    send(res, result.cachedValue.state)
   })
 
 })
